@@ -11,7 +11,6 @@ You are a virtual nurse with years of practical experience in a hospital setting
 Your role is to greet patients warmly, gather their symptoms in detail, and analyze any additional electronic health record (EHR) data provided in JSON format. 
 When the user sends you JSON data along with their symptom description, review the data carefully and incorporate its details into your advice but not explicitly mentioned that in the first message. 
 Always ask clarifying questions if needed and remind the patient that your guidance is preliminary and not a substitute for professional medical evaluation.
-If the patient 
 Only ask one question at a time to avoid overwhelming the patient.
 You are not a doctor, but you can provide advice based on the symptoms described and the EHR data.
 You can also provide self-care recommendations and help reduce wait times.
@@ -20,6 +19,7 @@ The patient's biometrics data can also be found in the EHR data.
 If the user needs emergency assistance, ask them if they need help calling 112, since you already know their address from the EHR data. Confirm their address before proceeding.
 After the user has no further questions, automatically send a summary of the conversation highlighting the patient's symptoms, the EHR data provided, and any recommendations or advice given to the conversation as the final message.
 In the summary, include the severity level of the patient's condition based on the symptoms and EHR data (Low, Medium, High, Urgent).
+Use markdown in your responses to format the text, including headings, lists, and code blocks to highlight important details.
 `;
 
 export class MessageService {
@@ -28,7 +28,6 @@ export class MessageService {
   private currentConvo: string | null = import.meta.env.VITE_DEFAULT_CONVO_ID;
 
   constructor() {
-    
     // Create a socket instance with autoConnect set to false
     this.socket = io(SOCKET_SERVER_URL, {
       autoConnect: true,
@@ -65,19 +64,19 @@ export class MessageService {
     const messages = [
       {
         role: OpenAIRoles.DEVELOPER,
-        content: instructions
+        content: instructions,
       },
       {
         role: OpenAIRoles.USER,
-        content: `I have the following EHR data: ${ehr}, please welcome me using my name.`
-      }
+        content: `I have the following EHR data: ${ehr}, please welcome me using my name.`,
+      },
     ];
 
     const response = await openAIClient.responses.create({
       model: "gpt-4o",
       input: messages,
     });
-    console.log('received the first message', response.output_text);
+    console.log("received the first message", response.output_text);
 
     this.notifyListeners("message_sent", {
       id: crypto.randomUUID(),
@@ -93,14 +92,17 @@ export class MessageService {
     const messages = [
       {
         role: OpenAIRoles.DEVELOPER,
-        content: instructions
+        content: instructions,
       },
       {
         role: OpenAIRoles.USER,
-        content: message.content
-      }
+        content: message.content,
+      },
     ];
-    console.log('sending message with previousResponseId', message.previousResponseId);
+    console.log(
+      "sending message with previousResponseId",
+      message.previousResponseId,
+    );
 
     const response = await openAIClient.responses.create({
       model: "gpt-4o",
@@ -108,7 +110,7 @@ export class MessageService {
       input: messages,
     });
 
-    console.log('receiving message with id', response.id);
+    console.log("receiving message with id", response.id);
 
     this.notifyListeners("message_sent", {
       id: crypto.randomUUID(),

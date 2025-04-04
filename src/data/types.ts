@@ -37,7 +37,8 @@ export const senders: Record<Sender["id"], Sender> = {
   "fb00d1db-bfed-47ed-abed-3a397f4ead5a": {
     id: "fb00d1db-bfed-47ed-abed-3a397f4ead5a",
     name: "Jussi",
-    avatar: "https://images.unsplash.com/photo-1701503098048-671c0a40d458?q=80&w=3080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    avatar:
+      "https://images.unsplash.com/photo-1701503098048-671c0a40d458?q=80&w=3080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     condition: "Asthma (Active and Confirmed since 2015)",
     medication: "Active prescription for Salbutamol (Inhaler).",
   },

@@ -19,7 +19,8 @@ const useGenericStore = create<GenericStore>((set) => ({
   previousResponseId: null,
   setPreviousResponseId: (responseId: string | null) =>
     set({ previousResponseId: responseId }),
-  setCurrentSenderId: (senderId: string | null) => set({ currentSenderId: senderId }),
+  setCurrentSenderId: (senderId: string | null) =>
+    set({ currentSenderId: senderId }),
   setMessages: (messages: Message[]) => set({ messages }),
   setConvos: (convos: Conversation[]) => set({ convos }),
 }));

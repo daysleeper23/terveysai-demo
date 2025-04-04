@@ -15,7 +15,11 @@ import EHR from "@/data/mock/ehr.json";
 const ChatHistory = () => {
   const navigate = useNavigate();
 
-  const { currentSenderId: senderId, previousResponseId, setPreviousResponseId } = useGenericStore();
+  const {
+    currentSenderId: senderId,
+    previousResponseId,
+    setPreviousResponseId,
+  } = useGenericStore();
   if (!senderId) {
     navigate("/"); // Redirect to home if senderId is not set
     return null; // Prevent rendering the component
@@ -92,7 +96,7 @@ const ChatHistory = () => {
       convoId: convoId,
       content: message,
       createdAt: time,
-       ...(previousResponseId ? { previousResponseId } : {}),
+      ...(previousResponseId ? { previousResponseId } : {}),
     });
 
     await db.messages.add({
@@ -100,7 +104,7 @@ const ChatHistory = () => {
       convoId: convoId,
       content: message,
       createdAt: time,
-       ...(previousResponseId ? { previousResponseId } : {}),
+      ...(previousResponseId ? { previousResponseId } : {}),
     });
     // Reset the message input
     setMessage("");
@@ -112,7 +116,7 @@ const ChatHistory = () => {
         convoId: convoId,
         content: message,
         createdAt: time,
-        previousResponseId: previousResponseId || ''
+        previousResponseId: previousResponseId || "",
       },
     ]);
   };

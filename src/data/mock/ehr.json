@@ -172,11 +172,32 @@
       }
     ],
     "biometrics": {
-      "Body Temperature": { "value": 38.5, "unit": "C", "timestamp": "2025-04-04T12:00:00Z" },
-      "Heart Rate": { "value": 75, "unit": "BPM", "timestamp": "2025-04-04T12:00:00Z" },
-      "Blood Oxygen": { "value": 98, "unit": "%", "timestamp": "2025-04-04T12:00:00Z" },
-      "Blood Pressure": { "systolic": 118, "diastolic": 78, "unit": "mmHg", "timestamp": "2025-04-04T12:00:00Z" },
-      "Blood Glucose": { "value": 90, "unit": "mg/dL", "timestamp": "2025-04-04T12:00:00Z" }
+      "Body Temperature": {
+        "value": 38.5,
+        "unit": "C",
+        "timestamp": "2025-04-04T12:00:00Z"
+      },
+      "Heart Rate": {
+        "value": 75,
+        "unit": "BPM",
+        "timestamp": "2025-04-04T12:00:00Z"
+      },
+      "Blood Oxygen": {
+        "value": 98,
+        "unit": "%",
+        "timestamp": "2025-04-04T12:00:00Z"
+      },
+      "Blood Pressure": {
+        "systolic": 118,
+        "diastolic": 78,
+        "unit": "mmHg",
+        "timestamp": "2025-04-04T12:00:00Z"
+      },
+      "Blood Glucose": {
+        "value": 90,
+        "unit": "mg/dL",
+        "timestamp": "2025-04-04T12:00:00Z"
+      }
     }
   },
 
@@ -306,15 +327,34 @@
         ]
       }
     ],
-    "test": [
-
-    ],
+    "test": [],
     "biometrics": {
-      "Body Temperature": { "value": 39.7, "unit": "C", "timestamp": "2025-04-04T12:05:00Z" },
-      "Heart Rate": { "value": 110, "unit": "BPM", "timestamp": "2025-04-04T12:10:00Z" },
-      "Blood Oxygen": { "value": 92, "unit": "%", "timestamp": "2025-04-04T12:10:00Z" },
-      "Blood Pressure": { "systolic": 130, "diastolic": 85, "unit": "mmHg", "timestamp": "2025-04-04T12:10:00Z" },
-      "Blood Glucose": { "value": 105, "unit": "mg/dL", "timestamp": "2025-04-04T12:10:00Z" }
+      "Body Temperature": {
+        "value": 39.7,
+        "unit": "C",
+        "timestamp": "2025-04-04T12:05:00Z"
+      },
+      "Heart Rate": {
+        "value": 110,
+        "unit": "BPM",
+        "timestamp": "2025-04-04T12:10:00Z"
+      },
+      "Blood Oxygen": {
+        "value": 92,
+        "unit": "%",
+        "timestamp": "2025-04-04T12:10:00Z"
+      },
+      "Blood Pressure": {
+        "systolic": 130,
+        "diastolic": 85,
+        "unit": "mmHg",
+        "timestamp": "2025-04-04T12:10:00Z"
+      },
+      "Blood Glucose": {
+        "value": 105,
+        "unit": "mg/dL",
+        "timestamp": "2025-04-04T12:10:00Z"
+      }
     }
   },
 
@@ -412,11 +452,32 @@
       }
     ],
     "biometrics": {
-      "Body Temperature": { "value": 36.7, "unit": "C", "timestamp": "2025-04-04T12:05:00Z" },
-      "Heart Rate": { "value": 70, "unit": "BPM", "timestamp": "2025-04-04T12:05:00Z" },
-      "Blood Oxygen": { "value": 97, "unit": "%", "timestamp": "2025-04-04T12:05:00Z" },
-      "Blood Pressure": { "systolic": 120, "diastolic": 80, "unit": "mmHg", "timestamp": "2025-04-04T12:05:00Z" },
-      "Blood Glucose": { "value": 95, "unit": "mg/dL", "timestamp": "2025-04-04T12:05:00Z" }
+      "Body Temperature": {
+        "value": 36.7,
+        "unit": "C",
+        "timestamp": "2025-04-04T12:05:00Z"
+      },
+      "Heart Rate": {
+        "value": 70,
+        "unit": "BPM",
+        "timestamp": "2025-04-04T12:05:00Z"
+      },
+      "Blood Oxygen": {
+        "value": 97,
+        "unit": "%",
+        "timestamp": "2025-04-04T12:05:00Z"
+      },
+      "Blood Pressure": {
+        "systolic": 120,
+        "diastolic": 80,
+        "unit": "mmHg",
+        "timestamp": "2025-04-04T12:05:00Z"
+      },
+      "Blood Glucose": {
+        "value": 95,
+        "unit": "mg/dL",
+        "timestamp": "2025-04-04T12:05:00Z"
+      }
     }
   },
 
@@ -497,11 +558,32 @@
       }
     ],
     "biometrics": {
-      "Body Temperature": { "value": 37.5, "unit": "C", "timestamp": "2025-04-04T12:15:00Z" },
-      "Heart Rate": { "value": 80, "unit": "BPM", "timestamp": "2025-04-04T12:15:00Z" },
-      "Blood Oxygen": { "value": 95, "unit": "%", "timestamp": "2025-04-04T12:15:00Z" },
-      "Blood Pressure": { "systolic": 125, "diastolic": 85, "unit": "mmHg", "timestamp": "2025-04-04T12:15:00Z" },
-      "Blood Glucose": { "value": 100, "unit": "mg/dL", "timestamp": "2025-04-04T12:15:00Z" }
+      "Body Temperature": {
+        "value": 37.5,
+        "unit": "C",
+        "timestamp": "2025-04-04T12:15:00Z"
+      },
+      "Heart Rate": {
+        "value": 80,
+        "unit": "BPM",
+        "timestamp": "2025-04-04T12:15:00Z"
+      },
+      "Blood Oxygen": {
+        "value": 95,
+        "unit": "%",
+        "timestamp": "2025-04-04T12:15:00Z"
+      },
+      "Blood Pressure": {
+        "systolic": 125,
+        "diastolic": 85,
+        "unit": "mmHg",
+        "timestamp": "2025-04-04T12:15:00Z"
+      },
+      "Blood Glucose": {
+        "value": 100,
+        "unit": "mg/dL",
+        "timestamp": "2025-04-04T12:15:00Z"
+      }
     }
   }
 }
