@@ -18,7 +18,8 @@ const Home = () => {
 
   useEffect(() => {
     setCurrentSenderId(null);
-  }, []);
+  }
+  , []);
 
   const handleSenderSelect = async (senderId: string) => {
     setCurrentSenderId(senderId);
@@ -114,10 +115,7 @@ const ChooseSender = ({
               onChooseSender(event.currentTarget.value);
             }}
           >
-            <img
-              className="w-24 h-24 rounded-full object-cover object-top"
-              src={sender.avatar}
-            ></img>
+            <img className="w-24 h-24 rounded-full object-cover object-top" src={sender.avatar}></img>
             {sender.name}
             <div className="text-sm font-light text-muted-foreground text-wrap flex flex-col items-start">
               <p>Condition: {sender.condition}</p>
