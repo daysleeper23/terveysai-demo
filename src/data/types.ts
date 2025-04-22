@@ -1,7 +1,8 @@
 import z from "zod";
 
 export const MessageSchema = z.object({
-  id: z.number().int().positive(),
+  // id: z.number().int().positive(),
+  id: z.string().uuid(),
   senderId: z.string().uuid(),
   convoId: z.string().uuid(),
   content: z.string().nonempty({ message: "Message content cannot be empty" }),
@@ -14,6 +15,8 @@ export const ConversationSchema = z.object({
   id: z.string().uuid(),
   name: z.string().nonempty({ message: "Conversation name cannot be empty" }),
   senderId: z.string().uuid(),
+  previousResponseId: z.string().optional(),
+  lastMessage: z.string().optional(),
   createdAt: z.string(),
 });
 export type Conversation = z.infer<typeof ConversationSchema>;
@@ -30,7 +33,8 @@ export const senders: Record<Sender["id"], Sender> = {
   "f9590c0a-a75a-4eaa-96b3-e927bcfca823": {
     id: "f9590c0a-a75a-4eaa-96b3-e927bcfca823",
     name: "Matti",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     condition: "Type 2 Diabetes Mellitus",
     medication: "Metformin 500mg, 1 tablet twice daily with meals",
   },

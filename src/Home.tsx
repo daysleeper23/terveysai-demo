@@ -5,38 +5,46 @@ import { CardContent, CardHeader } from "./components/ui/card";
 import messageService from "./service/messageService";
 
 import { db } from "./data/db";
-import ChatSelect from "./ChatSelect";
 import { Separator } from "@radix-ui/react-separator";
 import { senders } from "./data/types";
 import useGenericStore from "./data/store";
 import { useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+
+const languages = ["English", "Finnish", "Swedish", "Hindi"];
 
 const Home = () => {
-  const convoId = crypto.randomUUID();
+  // const convoId = crypto.randomUUID();
   const navigate = useNavigate();
   const { currentSenderId, setCurrentSenderId } = useGenericStore();
 
   useEffect(() => {
     setCurrentSenderId(null);
-  }
-  , []);
+  }, []);
 
   const handleSenderSelect = async (senderId: string) => {
     setCurrentSenderId(senderId);
 
-    messageService.joinConvo(convoId);
-    // Save the conversation to the database
-    await db.conversations.add({
-      id: convoId,
-      name:
-        "Conversation with " +
-        senders[senderId as keyof typeof senders]?.name +
-        Math.floor(Math.random() * 1000),
-      senderId: senderId || import.meta.env.VITE_DEFAULT_SENDER_ID,
-      createdAt: new Date().toISOString(),
-    });
+    // messageService.joinConvo(convoId);
+    // // Save the conversation to the database
+    // await db.conversations.add({
+    //   id: convoId,
+    //   name:
+    //     "Conversation with " +
+    //     senders[senderId as keyof typeof senders]?.name +
+    //     Math.floor(Math.random() * 1000),
+    //   senderId: senderId || import.meta.env.VITE_DEFAULT_SENDER_ID,
+    //   createdAt: new Date().toISOString(),
+    // });
     // Navigate to the chat page
-    navigate("/chat/" + convoId);
+    navigate("/chat");
   };
 
   return (
@@ -57,6 +65,7 @@ const Home = () => {
       </CardHeader>
       <Separator />
       <CardContent className="flex flex-col gap-4 flex-1 overflow-y-auto w-full items-start">
+        <ChooseLanguage />
         {currentSenderId === null && (
           <ChooseSender onChooseSender={handleSenderSelect} />
         )}
@@ -111,11 +120,13 @@ const ChooseSender = ({
             value={sender.id}
             variant={"outline"}
             onClick={(event) => {
-              console.log("object", event.currentTarget.value);
               onChooseSender(event.currentTarget.value);
             }}
           >
-            <img className="w-24 h-24 rounded-full object-cover object-top" src={sender.avatar}></img>
+            <img
+              className="w-24 h-24 rounded-full object-cover object-top"
+              src={sender.avatar}
+            ></img>
             {sender.name}
             <div className="text-sm font-light text-muted-foreground text-wrap flex flex-col items-start">
               <p>Condition: {sender.condition}</p>
@@ -125,5 +136,28 @@ const ChooseSender = ({
         ))}
       </div>
     </CardContent>
+  );
+};
+
+const ChooseLanguage = () => {
+  const setLanguage = useGenericStore((state) => state.setLanguage);
+
+  return (
+    <Select onValueChange={setLanguage}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select your language" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {
+            languages.map((lang) => (
+              <SelectItem key={lang} value={lang}>
+                {lang}
+              </SelectItem>
+            )) /* Add more languages as needed */
+          }
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CardContent, CardHeader } from "../components/ui/card";
-import { Message, senders } from "../data/types";
+import { Message } from "../data/types";
 import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
 import messageService from "../service/messageService";
@@ -20,9 +20,12 @@ const ChatHistory = () => {
     previousResponseId,
     setPreviousResponseId,
   } = useGenericStore();
-  if (!senderId) {
-    navigate("/"); // Redirect to home if senderId is not set
-    return null; // Prevent rendering the component
+  console.log("senderId", senderId);
+
+  if (!senderId || senderId === "" || senderId === null) {
+    console.log("senderId is not set, redirecting to home");
+    navigate("/");
+    return;
   }
 
   const [message, setMessage] = useState<string>("");
@@ -30,11 +33,18 @@ const ChatHistory = () => {
   const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
   const convoId = useParams().convoId || import.meta.env.VITE_DEFAULT_CONVO_ID;
-  const botId = import.meta.env.VITE_DEFAULT_SYSTEM_ID;
+  // const botId = import.meta.env.VITE_DEFAULT_SYSTEM_ID;
   const EHRJSON = JSON.stringify(EHR[senderId as keyof typeof EHR]);
 
   useEffect(() => {
-    async function fetchMessages() {
+    // Check if the senderId is set, if not redirect to home
+    if (!senderId || senderId === "") {
+      console.log("senderId is not set, redirecting to home");
+      navigate("/");
+      return;
+    }
+
+    async function fetchMessagesAndPrevResponseId() {
       if (db) {
         const allMessages = await db.messages
           .where("convoId")
@@ -42,14 +52,22 @@ const ChatHistory = () => {
           .sortBy("createdAt");
 
         if (allMessages.length === 0) {
+          console.log("no messages found, initializing chat");
           // Initialize the chat with a welcome message
           await messageService.initOpenAIChat(EHRJSON, convoId);
         } else {
           setMessages(allMessages);
         }
+
+        const prevResponseId = await db.conversations
+          .where("id")
+          .equals(convoId)
+          .first()
+          .then((convo) => convo?.previousResponseId);
+        setPreviousResponseId(prevResponseId || "");
       }
     }
-    fetchMessages();
+    fetchMessagesAndPrevResponseId();
     messageService.joinConvo(convoId);
     messageService.on("message_sent", handleReceiveMessage);
   }, [convoId]);
@@ -61,34 +79,10 @@ const ChatHistory = () => {
     }
   }, [messages]);
 
-  // const initializeChat = async () => {
-  //   const message = `Hello ${senders[senderId].name}! How can I help you?`;
-  //   const time = new Date().toISOString();
-  //   const messageId = crypto.randomUUID();
-
-  //   await db.messages.add({
-  //     senderId: botId,
-  //     convoId: convoId,
-  //     content: message,
-  //     createdAt: time,
-  //   });
-  //   // Reset the message input
-  //   setMessages((prevMessages) => [
-  //     ...prevMessages,
-  //     {
-  //       id: messageId,
-  //       senderId: botId,
-  //       convoId: convoId,
-  //       content: message,
-  //       createdAt: time,
-  //     },
-  //   ]);
-  // };
-
   const handleSendMessage = async () => {
     // Handle sending the message
     console.log("Sending message:", message);
-    const messageId = Math.floor(Math.random() * 1000);
+    const messageId = crypto.randomUUID();
     const time = new Date().toISOString();
     messageService.sendOpenAIMessage({
       id: messageId,
@@ -100,6 +94,7 @@ const ChatHistory = () => {
     });
 
     await db.messages.add({
+      id: messageId,
       senderId: senderId,
       convoId: convoId,
       content: message,
@@ -127,8 +122,27 @@ const ChatHistory = () => {
     // Update the previousResponseId in the store
     setPreviousResponseId(message.previousResponseId!);
 
-    // Save the message to the database
-    await db.messages.add(message);
+    // Update the previousResponseId for the conversation in the database
+    await db.conversations.update(message.convoId, {
+      previousResponseId: message.previousResponseId,
+      lastMessage: message.content,
+    });
+
+    // Check if the message already exists in the database
+    const existingMessage = await db.messages
+      .where("id")
+      .equals(message.id)
+      .first();
+    if (existingMessage) {
+      // If the message already exists, update it
+      await db.messages.update(message.id, {
+        content: message.content,
+        createdAt: message.createdAt,
+        previousResponseId: message.previousResponseId,
+      });
+    } else {
+      await db.messages.add(message);
+    }
 
     // Update the messages state
     setMessages((prevMessages) => [...prevMessages, message]);
@@ -137,7 +151,7 @@ const ChatHistory = () => {
   return (
     <>
       <CardHeader className="flex gap-4 items-center">
-        <Button size="icon" variant="outline" onClick={() => navigate("/")}>
+        <Button size="icon" variant="outline" onClick={() => navigate("/chat")}>
           <ArrowLeft />
         </Button>
         <Separator orientation="vertical" className="h-8" />
@@ -150,7 +164,7 @@ const ChatHistory = () => {
             <UserMessage key={message.id} message={message} />
           ) : (
             <BotMessage key={message.id} message={message} />
-          ),
+          )
         )}
         <div ref={chatHistoryRef} />
       </CardContent>
