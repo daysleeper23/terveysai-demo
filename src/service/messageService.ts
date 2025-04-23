@@ -3,6 +3,7 @@ import { Message, MessageSchema, OpenAIRoles } from "@/data/types";
 import io, { Socket } from "socket.io-client";
 import openAIClient from "./openAI";
 import useGenericStore from "@/data/store";
+import { symptomsKeywords } from "@/data/mock/symptoms";
 
 // URL of your Socket.IO server (adjust as needed)
 const SOCKET_SERVER_URL = "http://localhost:3001";
@@ -20,7 +21,8 @@ const instructions = `
   The patient's biometrics data can also be found in the EHR data (Body Temperature, Heart Rate, Blood Oxygen, Blood Pressure, Blood Glucose)
   If the user needs emergency assistance, ask them if they need help calling 112, since you already know their address from the EHR data. Confirm their address before proceeding.
   After the user has no further questions, automatically send a summary of the conversation highlighting the patient's symptoms, the EHR data provided, and any recommendations or advice given to the conversation as the final message.
-  In the summary, include the severity level of the patient's condition based on the symptoms and EHR data (Low, Medium, High, Urgent).
+  Always start the summary message with "Summary of our conversation:".
+  In the summary, include the severity level of the patient's condition based on the symptoms and EHR data (Low, Medium, High, Urgent) with this description text "Severity Level:".
   Use markdown in your responses to format the text, including headings, lists, and code blocks to highlight important details.
 `;
 
@@ -116,6 +118,7 @@ export class MessageService {
     });
 
     console.log("receiving message with id", response.id);
+    console.log("analyzing", this.extractSummaryDetails(response.output_text));
 
     this.notifyListeners("message_sent", {
       id: crypto.randomUUID(),
@@ -188,6 +191,44 @@ export class MessageService {
     } else {
       console.error("Socket not connected. Cannot send message.");
     }
+  }
+
+  extractSymptomsFromText(text: string): string[] {
+    return symptomsKeywords.filter((symptom) =>
+      text.toLowerCase().includes(symptom.toLowerCase())
+    );
+  }
+
+  isMessageTheChatSummary(message: string) {
+    const isSummary = /summary of our conversation:/i.test(
+      message.toLowerCase()
+    );
+    return isSummary;
+  }
+  extractSummaryDetails(message: string) {
+    const isSummary = this.isMessageTheChatSummary(message);
+    if (!isSummary) {
+      return null;
+    }
+
+    const severityMatch = message.match(/\*{2}Severity Level:\*{2}\s*(.+)/i);
+    const severity = severityMatch ? severityMatch[1].trim() : "";
+
+    const symptomsMatch = message.match(
+      /\*\*Symptoms:\*\*\s*((?:.|\n)*?)(?=\n- \*\*|\n\n|\*\*)/i
+    );
+    let symptomsText = symptomsMatch ? symptomsMatch[1].trim() : "";
+    symptomsText = symptomsText.replace(/^[-•]\s*/gm, "");
+
+    const symptoms = symptomsText
+      .split(/\n|,/) // either newline or comma-separated
+      .map((s) => s.trim().replace(/^[-•]\s*/gm, ""))
+      .filter((s) => s.length > 0);
+
+    return {
+      severity,
+      symptoms,
+    };
   }
 }
 

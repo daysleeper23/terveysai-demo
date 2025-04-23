@@ -16,6 +16,7 @@ export const ConversationSchema = z.object({
   name: z.string().nonempty({ message: "Conversation name cannot be empty" }),
   senderId: z.string().uuid(),
   previousResponseId: z.string().optional(),
+  symptoms: z.string().optional(),
   lastMessage: z.string().optional(),
   createdAt: z.string(),
 });

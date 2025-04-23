@@ -16,7 +16,8 @@ const db = new Dexie("TerveysAIMessageDatabase") as Dexie & {
 // Schema declaration:
 db.version(2).stores({
   messages: "++id, senderId, convoId, content, createdAt, previousResponseId", // primary key "id" (for the runtime!)
-  conversations: "++id, name, senderId, createdAt", // primary key "id" (for the runtime!)
+  conversations:
+    "++id, name, senderId, lastMessage, previousResponseId, symptoms, createdAt", // primary key "id" (for the runtime!)
 });
 
 export { db };

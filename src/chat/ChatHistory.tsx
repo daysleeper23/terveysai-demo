@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CardContent, CardHeader } from "../components/ui/card";
-import { Message } from "../data/types";
+import { Conversation, Message } from "../data/types";
 import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
 import messageService from "../service/messageService";
@@ -12,6 +12,14 @@ import useGenericStore from "@/data/store";
 import ChatInput from "./ChatInput";
 import EHR from "@/data/mock/ehr.json";
 
+import { terms } from "@/data/mock/terms";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 const ChatHistory = () => {
   const navigate = useNavigate();
 
@@ -20,16 +28,15 @@ const ChatHistory = () => {
     previousResponseId,
     setPreviousResponseId,
   } = useGenericStore();
-  console.log("senderId", senderId);
 
   if (!senderId || senderId === "" || senderId === null) {
-    console.log("senderId is not set, redirecting to home");
     navigate("/");
     return;
   }
 
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
+  const [convo, setConvo] = useState<Conversation>();
   const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
   const convoId = useParams().convoId || import.meta.env.VITE_DEFAULT_CONVO_ID;
@@ -59,12 +66,15 @@ const ChatHistory = () => {
           setMessages(allMessages);
         }
 
-        const prevResponseId = await db.conversations
+        const convo = await db.conversations
           .where("id")
           .equals(convoId)
-          .first()
-          .then((convo) => convo?.previousResponseId);
-        setPreviousResponseId(prevResponseId || "");
+          .first();
+
+        if (convo) {
+          setConvo(convo);
+          setPreviousResponseId(convo.previousResponseId || "");
+        }
       }
     }
     fetchMessagesAndPrevResponseId();
@@ -81,7 +91,6 @@ const ChatHistory = () => {
 
   const handleSendMessage = async () => {
     // Handle sending the message
-    console.log("Sending message:", message);
     const messageId = crypto.randomUUID();
     const time = new Date().toISOString();
     messageService.sendOpenAIMessage({
@@ -92,6 +101,26 @@ const ChatHistory = () => {
       createdAt: time,
       ...(previousResponseId ? { previousResponseId } : {}),
     });
+
+    // Extract symptoms from the message
+    const symptoms = messageService.extractSymptomsFromText(message);
+    if (symptoms.length > 0) {
+      const currentConvo = await db.conversations.get(convoId);
+      let updatedSymptoms = symptoms;
+
+      // If there are existing symptoms, combine them with new ones
+      if (currentConvo && currentConvo.symptoms) {
+        const existingSymptoms = currentConvo.symptoms.split(", ");
+        // Create a Set to remove duplicates
+        const symptomSet = new Set([...existingSymptoms, ...symptoms]);
+        updatedSymptoms = Array.from(symptomSet);
+      }
+
+      // Update with combined symptoms
+      await db.conversations.update(convoId, {
+        symptoms: updatedSymptoms.join(", "),
+      });
+    }
 
     await db.messages.add({
       id: messageId,
@@ -155,7 +184,9 @@ const ChatHistory = () => {
           <ArrowLeft />
         </Button>
         <Separator orientation="vertical" className="h-8" />
-        <p></p>
+        <div>
+          {convo?.symptoms} - {convo?.name}
+        </div>
       </CardHeader>
       <Separator />
       <CardContent className="flex flex-col gap-4 flex-1 overflow-y-auto w-full items-end">
@@ -188,10 +219,55 @@ const UserMessage = ({ message }: { message: Message }) => {
 };
 
 const BotMessage = ({ message }: { message: Message }) => {
+  const termMap = Object.fromEntries(
+    Object.entries(terms).map(([key, value]) => [key.toLowerCase(), value])
+  );
+
+  const renderingTooltips = (text: string) => {
+    const parts: React.ReactNode[] = [];
+    let remaining = text;
+
+    Object.keys(termMap).forEach((term) => {
+      const regex = new RegExp(`\\b(${term})\\b`, "gi");
+      const match = remaining.match(regex);
+      console.log(`Matching term: ${term}, Match found: ${match}`);
+
+      if (match) {
+        remaining = remaining.replace(regex, (matched) => {
+          parts.push(
+            <TooltipProvider key={`${matched}-${Math.random()}`}>
+              <Tooltip>
+                <TooltipTrigger className="underline decoration-dotted cursor-help">
+                  {matched}
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-sm">
+                  {termMap[matched.toLowerCase()]}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+          return "¶"; // Temporary marker
+        });
+      }
+    });
+
+    const splitText = remaining.split("¶");
+    const finalParts = splitText
+      .flatMap((chunk, i) => [chunk, parts[i]])
+      .filter(Boolean);
+
+    return <>{finalParts}</>;
+  };
+
   return (
     <div className="flex flex-row w-full gap-2 rounded-md bg-card">
       <div className="text-sm">
-        <ReactMarkdown>{message.content}</ReactMarkdown>
+        {messageService.isMessageTheChatSummary(message.content) ? (
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        ) : (
+          // <p>{message.content}</p>
+          renderingTooltips(message.content)
+        )}
       </div>
     </div>
   );
