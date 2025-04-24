@@ -26,6 +26,8 @@ export const terms = {
     "Pain you feel in one part of the body that’s actually caused by a problem elsewhere.",
   "radiating pain": "Pain that spreads from one place to another.",
   "throbbing pain": "Pain that comes and goes like a pulse.",
+  "sharp pain":
+    "More consistent and less intense. It might feel like a pressure or a weight on your head.",
   "stabbing pain":
     "Very sharp pain that feels like being poked with something sharp.",
   "burning pain": "Pain that feels hot or fiery.",

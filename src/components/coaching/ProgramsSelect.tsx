@@ -49,7 +49,7 @@ export default function ProgramSelect({ programs }: ProgramSelectProps) {
       <h2 className="text-2xl font-bold">
         Your personalized well-being programs
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {programs.map((program, index) => (
           <SingleProgram
             key={index}

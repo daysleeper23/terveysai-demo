@@ -1,26 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { CardContent, CardHeader } from "../components/ui/card";
-import { Conversation, Message } from "../data/types";
-import { Separator } from "../components/ui/separator";
-import { Button } from "../components/ui/button";
-import messageService from "../service/messageService";
-import { db } from "../data/db";
+import { CardContent, CardHeader } from "../../ui/card";
+import { Conversation, Message } from "../../../data/types";
+import { Separator } from "../../ui/separator";
+import { Button } from "../../ui/button";
+import messageService from "../../../service/messageService";
+import { db } from "../../../data/db";
 import { useNavigate, useParams } from "react-router";
-import ReactMarkdown from "react-markdown";
+
 import { ArrowLeft } from "lucide-react";
 import useGenericStore from "@/data/store";
 import ChatInput from "./ChatInput";
 import EHR from "@/data/mock/ehr.json";
 
-import { terms } from "@/data/mock/terms";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import UserMessage from "./UserMessage";
+import BotMessage from "./BotMessage";
 
-const ChatHistory = () => {
+const ChatDetail = () => {
   const navigate = useNavigate();
 
   const {
@@ -184,9 +179,7 @@ const ChatHistory = () => {
           <ArrowLeft />
         </Button>
         <Separator orientation="vertical" className="h-8" />
-        <div>
-          {convo?.symptoms} - {convo?.name}
-        </div>
+        <div className="font-semibold">{convo?.name}</div>
       </CardHeader>
       <Separator />
       <CardContent className="flex flex-col gap-4 flex-1 overflow-y-auto w-full items-end">
@@ -208,67 +201,4 @@ const ChatHistory = () => {
     </>
   );
 };
-export default ChatHistory;
-
-const UserMessage = ({ message }: { message: Message }) => {
-  return (
-    <div className="flex flex-row-reverse w-fit gap-2 rounded-md border border-primary-80 p-3 bg-muted">
-      <div className="text-sm">{message.content}</div>
-    </div>
-  );
-};
-
-const BotMessage = ({ message }: { message: Message }) => {
-  const termMap = Object.fromEntries(
-    Object.entries(terms).map(([key, value]) => [key.toLowerCase(), value])
-  );
-
-  const renderingTooltips = (text: string) => {
-    const parts: React.ReactNode[] = [];
-    let remaining = text;
-
-    Object.keys(termMap).forEach((term) => {
-      const regex = new RegExp(`\\b(${term})\\b`, "gi");
-      const match = remaining.match(regex);
-      console.log(`Matching term: ${term}, Match found: ${match}`);
-
-      if (match) {
-        remaining = remaining.replace(regex, (matched) => {
-          parts.push(
-            <TooltipProvider key={`${matched}-${Math.random()}`}>
-              <Tooltip>
-                <TooltipTrigger className="underline decoration-dotted cursor-help">
-                  {matched}
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-sm">
-                  {termMap[matched.toLowerCase()]}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          );
-          return "¶"; // Temporary marker
-        });
-      }
-    });
-
-    const splitText = remaining.split("¶");
-    const finalParts = splitText
-      .flatMap((chunk, i) => [chunk, parts[i]])
-      .filter(Boolean);
-
-    return <>{finalParts}</>;
-  };
-
-  return (
-    <div className="flex flex-row w-full gap-2 rounded-md bg-card">
-      <div className="text-sm">
-        {messageService.isMessageTheChatSummary(message.content) ? (
-          <ReactMarkdown>{message.content}</ReactMarkdown>
-        ) : (
-          // <p>{message.content}</p>
-          renderingTooltips(message.content)
-        )}
-      </div>
-    </div>
-  );
-};
+export default ChatDetail;

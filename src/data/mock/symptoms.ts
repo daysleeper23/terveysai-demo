@@ -1,3 +1,12 @@
+export enum SeverityType {
+  Low = "Low",
+  Medium = "Medium",
+  High = "High",
+  Urgent = "Urgent",
+  None = "No Severity",
+}
+export const UNCLEAR_SYMPTOM = "Unclear";
+
 export const symptomsKeywords = [
   "Abdominal pain",
   "Acne",

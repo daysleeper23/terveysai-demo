@@ -1,12 +1,8 @@
-// messageService.js
 import { Message, MessageSchema, OpenAIRoles } from "@/data/types";
-import io, { Socket } from "socket.io-client";
 import openAIClient from "./openAI";
 import useGenericStore from "@/data/store";
 import { symptomsKeywords } from "@/data/mock/symptoms";
-
-// URL of your Socket.IO server (adjust as needed)
-const SOCKET_SERVER_URL = "http://localhost:3001";
+import { db } from "@/data/db";
 
 const instructions = `
   You are a virtual nurse with years of practical experience in a hospital setting. You are specialized in diabetes and asthma.
@@ -27,123 +23,128 @@ const instructions = `
 `;
 
 export class MessageService {
-  private socket: Socket;
   private listeners: Map<string, Array<(data: any) => void>> = new Map();
   private currentConvo: string | null = import.meta.env.VITE_DEFAULT_CONVO_ID;
 
   constructor() {
-    // Create a socket instance with autoConnect set to false
-    this.socket = io(SOCKET_SERVER_URL, {
-      autoConnect: true,
-    });
-
-    this.socket.on("connect", () => {
-      console.log("Connected to messaging server");
-      if (this.currentConvo) {
-        this.joinConvo(this.currentConvo);
-      }
-
-      this.notifyListeners("connect", null);
-    });
-
-    this.socket.on("disconnect", () => {
-      console.log("Disconnected from messaging server");
-      this.notifyListeners("disconnect", null);
-    });
-
-    // Set up listeners for task events
-    this.socket.on("message_sent", (message: Message) => {
-      const parsedMessage = MessageSchema.safeParse(message);
-      if (parsedMessage.success) {
-        this.notifyListeners("message_sent", parsedMessage.data);
-      }
-    });
-
-    this.socket.on("error", (error: any) => {
-      this.notifyListeners("error", error);
-    });
+    // Simulate connection status
+    this.notifyListeners("connect", null);
+    console.log("Local message service initialized");
   }
 
   async initOpenAIChat(ehr: string, convoId: string) {
     const language = useGenericStore.getState().language;
     console.log("language", language);
 
-    const messages = [
-      {
-        role: OpenAIRoles.DEVELOPER,
-        content: instructions,
-      },
-      {
-        role: OpenAIRoles.USER,
-        content: `I have the following EHR data: ${ehr}, please welcome me using my name. Please use ${language} to communicate with me.`,
-      },
-    ];
+    try {
+      const messages = [
+        {
+          role: OpenAIRoles.DEVELOPER,
+          content: instructions,
+        },
+        {
+          role: OpenAIRoles.USER,
+          content: `I have the following EHR data: ${ehr}, please welcome me using my name. Please use ${language} to communicate with me.`,
+        },
+      ];
 
-    const response = await openAIClient.responses.create({
-      model: "gpt-4o",
-      input: messages,
-    });
-    console.log("received the first message", response.output_text);
+      const response = await openAIClient.responses.create({
+        model: "gpt-4o",
+        input: messages,
+      });
+      console.log("received the first message", response.output_text);
 
-    this.notifyListeners("message_sent", {
-      id: crypto.randomUUID(),
-      senderId: import.meta.env.VITE_DEFAULT_SYSTEM_ID,
-      convoId: convoId,
-      createdAt: new Date().toISOString(),
-      content: response.output_text,
-      previousResponseId: response.id,
-    });
+      const newMessage = {
+        id: crypto.randomUUID(),
+        senderId: import.meta.env.VITE_DEFAULT_SYSTEM_ID,
+        convoId: convoId,
+        createdAt: new Date().toISOString(),
+        content: response.output_text,
+        previousResponseId: response.id,
+      };
+
+      // Store in IndexedDB
+      await db.messages.add(newMessage);
+
+      this.notifyListeners("message_sent", newMessage);
+    } catch (error) {
+      console.error("Error initializing OpenAI chat:", error);
+      this.notifyListeners("error", error);
+    }
   }
 
   async sendOpenAIMessage(message: Message) {
-    const messages = [
-      {
-        role: OpenAIRoles.DEVELOPER,
-        content: instructions,
-      },
-      {
-        role: OpenAIRoles.USER,
-        content: message.content,
-      },
-    ];
-    console.log(
-      "sending message with previousResponseId",
-      message.previousResponseId
-    );
+    try {
+      // First, save the user's message to IndexedDB
+      await db.messages.add(message);
 
-    const response = await openAIClient.responses.create({
-      model: "gpt-4o",
-      previous_response_id: message.previousResponseId,
-      input: messages,
-    });
+      const messages = [
+        {
+          role: OpenAIRoles.DEVELOPER,
+          content: instructions,
+        },
+        {
+          role: OpenAIRoles.USER,
+          content: message.content,
+        },
+      ];
+      console.log(
+        "sending message with previousResponseId",
+        message.previousResponseId
+      );
 
-    console.log("receiving message with id", response.id);
-    console.log("analyzing", this.extractSummaryDetails(response.output_text));
+      const response = await openAIClient.responses.create({
+        model: "gpt-4o",
+        previous_response_id: message.previousResponseId,
+        input: messages,
+      });
 
-    this.notifyListeners("message_sent", {
-      id: crypto.randomUUID(),
-      senderId: import.meta.env.VITE_DEFAULT_SYSTEM_ID,
-      convoId: message.convoId,
-      createdAt: new Date().toISOString(),
-      content: response.output_text,
-      previousResponseId: response.id,
-    });
-  }
+      console.log("receiving message with id", response.id);
+      console.log(
+        "analyzing",
+        this.extractSummaryDetails(response.output_text)
+      );
 
-  // Join a convo room to receive messages
-  joinConvo(convoId: string): void {
-    if (this.socket.connected) {
-      this.socket.emit("join_convo", convoId);
-      this.currentConvo = convoId;
+      const botResponse = {
+        id: crypto.randomUUID(),
+        senderId: import.meta.env.VITE_DEFAULT_SYSTEM_ID,
+        convoId: message.convoId,
+        createdAt: new Date().toISOString(),
+        content: response.output_text,
+        previousResponseId: response.id,
+      };
+
+      // Store bot's response in IndexedDB
+      await db.messages.add(botResponse);
+
+      // Check if this is a summary message and extract symptoms/severity if needed
+      const summaryDetails = this.extractSummaryDetails(response.output_text);
+      if (summaryDetails) {
+        // Update conversation with summary details
+        await db.conversations.update(message.convoId, {
+          symptoms: summaryDetails.symptoms.join(", "),
+        });
+      }
+
+      this.notifyListeners("message_sent", botResponse);
+    } catch (error) {
+      console.error("Error sending message to OpenAI:", error);
+      this.notifyListeners("error", error);
     }
   }
 
-  // Leave a team room
+  // Join a conversation (now just sets the current conversation ID)
+  joinConvo(convoId: string): void {
+    this.currentConvo = convoId;
+    console.log(`Joined conversation: ${convoId}`);
+  }
+
+  // Leave a conversation
   leaveConvo(convoId: string): void {
-    this.socket.emit("leave_convo", convoId);
     if (this.currentConvo === convoId) {
       this.currentConvo = null;
     }
+    console.log(`Left conversation: ${convoId}`);
   }
 
   // Add event listener
@@ -179,18 +180,32 @@ export class MessageService {
     }
   }
 
-  // Disconnect from the server
+  // Simulate disconnect
   disconnect(): void {
-    this.socket.disconnect();
+    this.notifyListeners("disconnect", null);
+    console.log("Disconnected from local message service");
   }
 
-  // Send a message to the server
+  // Send a message (now directly processes it without WebSocket)
   sendMessage(message: Message) {
-    if (this.socket && this.socket.connected) {
-      this.socket.emit("message_sent", message);
-    } else {
-      console.error("Socket not connected. Cannot send message.");
+    // Validate the message
+    const parsedMessage = MessageSchema.safeParse(message);
+    if (!parsedMessage.success) {
+      console.error("Invalid message format:", parsedMessage.error);
+      this.notifyListeners("error", "Invalid message format");
+      return;
     }
+
+    // Store in IndexedDB
+    db.messages
+      .add(message)
+      .then(() => {
+        this.notifyListeners("message_sent", message);
+      })
+      .catch((error) => {
+        console.error("Error storing message:", error);
+        this.notifyListeners("error", error);
+      });
   }
 
   extractSymptomsFromText(text: string): string[] {
@@ -205,6 +220,7 @@ export class MessageService {
     );
     return isSummary;
   }
+
   extractSummaryDetails(message: string) {
     const isSummary = this.isMessageTheChatSummary(message);
     if (!isSummary) {
