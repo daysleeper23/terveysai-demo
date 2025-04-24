@@ -1,4 +1,5 @@
 export function generateAIQuestions(ehrData: any): string[] {
+  // eslint-disable-line @typescript-eslint/no-explicit-any
   const questions: string[] = [];
 
   // Extract personal details
@@ -11,17 +12,17 @@ export function generateAIQuestions(ehrData: any): string[] {
 
   // Existing medical condition (Diabetes Example)
   const hasDiabetes = ehrData.Clinical?.some(
-    (condition: any) => condition.code.coding[0]?.code === "E11"
+    (condition: any) => condition.code.coding[0]?.code === "E11" // eslint-disable-line @typescript-eslint/no-explicit-any
   );
 
   // Current medications
   const medicationList = ehrData.Medication?.map(
-    (med: any) => med.medicationCodeableConcept.coding[0]?.display
+    (med: any) => med.medicationCodeableConcept.coding[0]?.display // eslint-disable-line @typescript-eslint/no-explicit-any
   );
 
   // Lab results (Blood Glucose Example)
   const bloodGlucose = ehrData.LabTest?.find(
-    (test: any) => test.code.coding[0]?.code === "15074-8"
+    (test: any) => test.code.coding[0]?.code === "15074-8" // eslint-disable-line @typescript-eslint/no-explicit-any
   )?.valueQuantity?.value;
 
   // 🏥 Generate AI-driven health questions

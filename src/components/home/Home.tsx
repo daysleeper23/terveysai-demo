@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router";
 import { CardContent, CardHeader } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { senders } from "../../data/types";
 import useGenericStore from "../../data/store";
 import { useEffect } from "react";
 import {
@@ -12,14 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import {
-  Globe,
-  Shield,
-  User,
-  Pill,
-  ClipboardList,
-  CheckCircle,
-} from "lucide-react";
+import { Globe, Shield, ClipboardList, CheckCircle } from "lucide-react";
 import ChooseSender from "./ChooseSender";
 
 const languages = ["English", "Finnish", "Swedish", "Hindi"];
