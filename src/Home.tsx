@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router";
-
-import { Button } from "./components/ui/button";
 import { CardContent, CardHeader } from "./components/ui/card";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "./components/ui/separator";
 import { senders } from "./data/types";
 import useGenericStore from "./data/store";
 import { useEffect } from "react";
@@ -14,11 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./components/ui/select";
+import {
+  Globe,
+  Shield,
+  User,
+  Pill,
+  ClipboardList,
+  CheckCircle,
+} from "lucide-react";
 
 const languages = ["English", "Finnish", "Swedish", "Hindi"];
 
 const Home = () => {
-  // const convoId = crypto.randomUUID();
   const navigate = useNavigate();
   const { currentSenderId, setCurrentSenderId } = useGenericStore();
 
@@ -28,40 +33,82 @@ const Home = () => {
 
   const handleSenderSelect = async (senderId: string) => {
     setCurrentSenderId(senderId);
-
-    // Navigate to the chat page
     navigate("/chat");
   };
 
   return (
     <>
-      <CardHeader className="flex flex-col gap-6 mb-12">
+      <CardHeader className="flex flex-col gap-6 mb-8">
         <div className="flex flex-col gap-4 items-center align-middle w-full">
-          <img
-            className="w-24 h-24 rounded-full"
-            src="https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          ></img>
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-            TerveysAI
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Your AI-powered health assistant
-          </p>
-          {/* <p className="text-xl text-muted-foreground">
-            You don't have to wait at all.
-          </p> */}
+          <div className="relative">
+            <img
+              className="w-28 h-28 rounded-full object-cover shadow-md border-2 border-primary/20"
+              src="https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="TerveysAI Logo"
+            />
+            <div className="absolute -bottom-2 -right-2 bg-primary text-white p-1 rounded-full">
+              <Shield className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="text-center">
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">
+              TerveysAI
+            </h1>
+            <p className="text-xl text-muted-foreground mt-2">
+              Your AI-powered health assistant
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3 mt-3">
+            <div className="flex items-center bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              HIPAA Compliant
+            </div>
+            <div className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs">
+              <Shield className="h-3 w-3 mr-1" />
+              Encrypted Data
+            </div>
+            <div className="flex items-center bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs">
+              <ClipboardList className="h-3 w-3 mr-1" />
+              Medically Reviewed
+            </div>
+          </div>
         </div>
       </CardHeader>
-      <Separator />
-      <CardContent className="flex flex-col gap-16 flex-1 overflow-y-auto w-full items-start">
+
+      <Separator className="mb-6" />
+
+      <CardContent className="flex flex-col gap-10 flex-1 overflow-y-auto w-full items-center">
         <ChooseLanguage />
+
         {currentSenderId === null && (
           <ChooseSender onChooseSender={handleSenderSelect} />
         )}
+
+        <div className="text-xs text-center text-muted-foreground mt-auto">
+          <p className="max-w-md mx-auto">
+            TerveysAI provides preliminary health information but does not
+            replace professional medical advice. Always consult with a
+            healthcare provider for medical concerns.
+          </p>
+          <div className="flex justify-center gap-4 mt-3">
+            <a href="#" className="hover:underline">
+              Privacy Policy
+            </a>
+            <a href="#" className="hover:underline">
+              Terms of Use
+            </a>
+            <a href="#" className="hover:underline">
+              Contact Support
+            </a>
+          </div>
+        </div>
       </CardContent>
     </>
   );
 };
+
 export default Home;
 
 const ChooseSender = ({
@@ -70,32 +117,54 @@ const ChooseSender = ({
   onChooseSender: (senderId: string) => void;
 }) => {
   return (
-    <CardContent className="flex flex-col gap-4 flex-1 overflow-y-auto w-full items-center">
-      <p className="text-xl text-primary font-bold">Sign In To Your Account</p>
-      <div className="grid grid-cols-1 gap-4 items-center w-full">
+    <div className="flex flex-col gap-6 w-full items-center">
+      <div className="flex items-center gap-2">
+        <User className="h-5 w-5 text-primary" />
+        <h2 className="text-xl text-primary font-semibold">
+          Select Your Profile
+        </h2>
+      </div>
+
+      <div className="grid sm:grid-cols-2 grid-cols-1 gap-5 w-full">
         {Object.values(senders).map((sender) => (
-          <Button
-            className="h-64 text-xl flex flex-col justify-center items-center"
+          <button
             key={sender.id}
             value={sender.id}
-            variant={"outline"}
             onClick={(event) => {
-              onChooseSender(event.currentTarget.value);
+              onChooseSender((event.target as HTMLButtonElement).value);
             }}
+            className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all p-5 flex flex-col items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             <img
-              className="w-24 h-24 rounded-full object-cover object-top"
+              className="w-20 h-20 rounded-full object-cover object-top border-2 border-primary/10"
               src={sender.avatar}
-            ></img>
-            {sender.name}
-            <div className="text-sm font-light text-muted-foreground text-wrap flex flex-col items-center">
-              <p>Condition: {sender.condition}</p>
-              <p>Medication: {sender.medication}</p>
+              alt={`${sender.name}'s profile`}
+            />
+            <div className="text-center">
+              <div className="font-medium text-lg text-gray-900">
+                {sender.name}
+              </div>
+
+              <div className="flex flex-col gap-2 mt-3">
+                <div className="flex items-center gap-1.5 text-sm">
+                  <div className="flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-md w-full">
+                    <ClipboardList className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                    <span className="truncate">{sender.condition}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-sm">
+                  <div className="flex items-center bg-purple-50 text-purple-700 px-2 py-1 rounded-md w-full">
+                    <Pill className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                    <span className="truncate">{sender.medication}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </Button>
+          </button>
         ))}
       </div>
-    </CardContent>
+    </div>
   );
 };
 
@@ -104,23 +173,25 @@ const ChooseLanguage = () => {
   const language = useGenericStore((state) => state.language);
 
   return (
-    <div className="flex flex-col gap-4 items-center w-full">
-      <p className="text-md text-muted-foreground">
-        Your communication language
-      </p>
+    <div className="flex flex-col gap-3 items-center w-full">
+      <div className="flex items-center gap-2">
+        <Globe className="h-4 w-4 text-primary" />
+        <p className="text-sm font-medium text-gray-600">
+          Select your preferred language
+        </p>
+      </div>
+
       <Select value={language} onValueChange={setLanguage}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="Select your language" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {
-              languages.map((lang) => (
-                <SelectItem key={lang} value={lang}>
-                  {lang}
-                </SelectItem>
-              )) /* Add more languages as needed */
-            }
+            {languages.map((lang) => (
+              <SelectItem key={lang} value={lang}>
+                {lang}
+              </SelectItem>
+            ))}
           </SelectGroup>
         </SelectContent>
       </Select>
