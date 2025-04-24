@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
-import { CardContent, CardHeader } from "./components/ui/card";
-import { Separator } from "./components/ui/separator";
-import { senders } from "./data/types";
-import useGenericStore from "./data/store";
+import { CardContent, CardHeader } from "../ui/card";
+import { Separator } from "../ui/separator";
+import { senders } from "../../data/types";
+import useGenericStore from "../../data/store";
 import { useEffect } from "react";
 import {
   Select,
@@ -11,7 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./components/ui/select";
+} from "../ui/select";
 import {
   Globe,
   Shield,
@@ -20,6 +20,7 @@ import {
   ClipboardList,
   CheckCircle,
 } from "lucide-react";
+import ChooseSender from "./ChooseSender";
 
 const languages = ["English", "Finnish", "Swedish", "Hindi"];
 
@@ -110,63 +111,6 @@ const Home = () => {
 };
 
 export default Home;
-
-const ChooseSender = ({
-  onChooseSender,
-}: {
-  onChooseSender: (senderId: string) => void;
-}) => {
-  return (
-    <div className="flex flex-col gap-6 w-full items-center">
-      <div className="flex items-center gap-2">
-        <User className="h-5 w-5 text-primary" />
-        <h2 className="text-xl text-primary font-semibold">
-          Select Your Profile
-        </h2>
-      </div>
-
-      <div className="grid sm:grid-cols-2 grid-cols-1 gap-5 w-full">
-        {Object.values(senders).map((sender) => (
-          <button
-            key={sender.id}
-            value={sender.id}
-            onClick={(event) => {
-              onChooseSender((event.target as HTMLButtonElement).value);
-            }}
-            className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all p-5 flex flex-col items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
-            <img
-              className="w-20 h-20 rounded-full object-cover object-top border-2 border-primary/10"
-              src={sender.avatar}
-              alt={`${sender.name}'s profile`}
-            />
-            <div className="text-center">
-              <div className="font-medium text-lg text-gray-900">
-                {sender.name}
-              </div>
-
-              <div className="flex flex-col gap-2 mt-3">
-                <div className="flex items-center gap-1.5 text-sm">
-                  <div className="flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-md w-full">
-                    <ClipboardList className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
-                    <span className="truncate">{sender.condition}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-sm">
-                  <div className="flex items-center bg-purple-50 text-purple-700 px-2 py-1 rounded-md w-full">
-                    <Pill className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
-                    <span className="truncate">{sender.medication}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const ChooseLanguage = () => {
   const setLanguage = useGenericStore((state) => state.setLanguage);

@@ -43,8 +43,8 @@ const ChatItem = ({ convo }: { convo: Conversation }) => {
       .replace(/\n/g, " ") // Replace newlines with spaces
       .replace(/#+\s/g, "") // Remove markdown headers
       .replace(/\[|\]/g, "") // Remove markdown links
-      .slice(0, 60) + // Shorter preview for mobile
-    (convo.lastMessage && convo.lastMessage.length > 60 ? "..." : "");
+      .slice(0, 100) + // Shorter preview for mobile
+    (convo.lastMessage && convo.lastMessage.length > 100 ? "..." : "");
 
   return (
     <div

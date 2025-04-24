@@ -1,7 +1,7 @@
 import { Card } from "./components/ui/card";
 import ChatDetail from "./components/chat/detail/ChatDetail";
 import { Route, Routes } from "react-router";
-import Home from "./Home";
+import Home from "./components/home/Home";
 import ChatHistory from "./components/chat/history/ChatHistory";
 import ProgramSelect from "./components/coaching/ProgramsSelect";
 import { programs } from "./data/mock/programs";

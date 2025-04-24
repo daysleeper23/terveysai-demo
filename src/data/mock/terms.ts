@@ -24,15 +24,14 @@ export const terms = {
   "inflammatory pain": "Pain from swelling or irritation in the body.",
   "referred pain":
     "Pain you feel in one part of the body that’s actually caused by a problem elsewhere.",
-  "radiating pain": "Pain that spreads from one place to another.",
-  "throbbing pain": "Pain that comes and goes like a pulse.",
-  "sharp pain":
+  radiating: "Pain that spreads from one place to another.",
+  throbbing: "Pain that comes and goes like a pulse.",
+  sharp:
     "More consistent and less intense. It might feel like a pressure or a weight on your head.",
-  "stabbing pain":
-    "Very sharp pain that feels like being poked with something sharp.",
+  stabbing: "Very sharp pain that feels like being poked with something sharp.",
   "burning pain": "Pain that feels hot or fiery.",
   tingling: "A pins-and-needles feeling.",
-  "dull pain": "A mild, aching pain that’s not sharp.",
+  dull: "A mild, aching pain that’s not sharp.",
   swelling:
     "When part of your body becomes larger than normal, often because of fluid.",
   redness: "Skin that turns red, usually from irritation or infection.",

@@ -105,8 +105,9 @@ export class MessageService {
         this.extractSummaryDetails(response.output_text)
       );
 
+      const responseId = crypto.randomUUID();
       const botResponse = {
-        id: crypto.randomUUID(),
+        id: responseId,
         senderId: import.meta.env.VITE_DEFAULT_SYSTEM_ID,
         convoId: message.convoId,
         createdAt: new Date().toISOString(),
@@ -115,6 +116,17 @@ export class MessageService {
       };
 
       // Store bot's response in IndexedDB
+      // check if botResponse is already in the database
+      const existingMessage = await db.messages
+        .where("id")
+        .equals(responseId)
+        .first();
+      if (existingMessage) {
+        console.log(
+          "Message already exists in the database, not adding again."
+        );
+        return;
+      }
       await db.messages.add(botResponse);
 
       // Check if this is a summary message and extract symptoms/severity if needed

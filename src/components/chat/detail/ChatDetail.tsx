@@ -111,6 +111,7 @@ const ChatDetail = () => {
     // Handle sending the message
     const messageId = crypto.randomUUID();
     const time = new Date().toISOString();
+
     messageService.sendOpenAIMessage({
       id: messageId,
       senderId: senderId,
@@ -140,14 +141,6 @@ const ChatDetail = () => {
       });
     }
 
-    await db.messages.add({
-      id: messageId,
-      senderId: senderId,
-      convoId: convoId,
-      content: message,
-      createdAt: time,
-      ...(previousResponseId ? { previousResponseId } : {}),
-    });
     // Reset the message input
     setMessage("");
     setMessages((prevMessages) => [
